@@ -292,12 +292,53 @@ def crawl_easy66():
                 break
 
 
+
+def crawl_justmed():
+    print('\n=== Crawling Just Med ===")
+    try:
+        url = 'https://www.justmed.com.hk/product-list.php?name=Power%20Wheelchair'
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        # Placeholder - to be refined after testing
+        print('  Just Med crawler - needs site structure analysis')
+    except Exception as e:
+        print(f'  Just Med error: {e}')
+
+def crawl_nero():
+    print('\n=== Crawling Nero Medical ===')
+    try:
+        url = 'https://www.neromedical.com.hk/products'
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        # Placeholder - to be refined after testing  
+        print('  Nero crawler - needs site structure analysis')
+    except Exception as e:
+        print(f'  Nero error: {e}')
+
+def crawl_supreme():
+    print('\n=== Crawling Supreme Medical ===')
+    try:
+        url = 'https://www.suprememedical.com.hk/'
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        # Placeholder - to be refined after testing
+        print('  Supreme crawler - needs site structure analysis')
+    except Exception as e:
+        print(f'  Supreme error: {e}')
+
+
 # ======================
 # Main
 # ======================
 if __name__ == '__main__':
     print(f'Starting crawler - {TODAY}')
     crawl_healthtop()
+        crawl_rehabexpress()
+    crawl_easy66()
+    crawl_justmed()
+    crawl_nero()
+    crawl_supreme()
+    print('\nDone! Crawled 6 suppliers.')
     crawl_rehabexpress()
     crawl_easy66()
     print('\nDone!')
