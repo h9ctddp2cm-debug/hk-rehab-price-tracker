@@ -5,20 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>仁濟醫院職業治療部 - 輔助工具價格比較</title>
   <style>
+    :root {
+      --font-scale: 1;
+      --base-font: 16px;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: calc(var(--base-font) * var(--font-scale)); }
     body {
       font-family: "Noto Sans TC", Arial, sans-serif;
       background: linear-gradient(135deg, #2ecc71, #27ae60);
       min-height: 100vh;
       padding: 20px;
+      font-size: 1rem;
     }
     .header { text-align: center; color: white; padding: 30px 20px 20px; }
     .header h1 { font-size: 2em; font-weight: bold; margin-bottom: 8px; }
     .header h2 { font-size: 1.3em; font-weight: normal; margin-bottom: 8px; }
     .header p  { font-size: 0.9em; opacity: 0.85; }
+
+    /* Top settings bar: language + font size */
+    .settings-bar {
+      background: white; border-radius: 12px; padding: 12px 16px;
+      margin: 0 auto 12px; max-width: 1000px;
+      display: flex; flex-wrap: wrap; gap: 12px;
+      align-items: center; justify-content: space-between;
+    }
+    .settings-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .settings-group .label {
+      font-weight: 600; color: #2c3e50; font-size: 0.9em;
+    }
+    .seg-btn {
+      padding: 6px 14px; border: 1px solid #27ae60; background: white;
+      color: #27ae60; cursor: pointer; font-size: 0.9em; font-weight: 600;
+      transition: all 0.15s;
+    }
+    .seg-btn:first-child { border-radius: 8px 0 0 8px; }
+    .seg-btn:last-child { border-radius: 0 8px 8px 0; }
+    .seg-btn:not(:first-child) { border-left: none; }
+    .seg-btn.active { background: #27ae60; color: white; }
+    .seg-btn:hover:not(.active) { background: #eafaf1; }
+    .seg-btn[data-size] { font-family: serif; }
+
     .controls {
       background: white; border-radius: 12px; padding: 16px;
-      margin: 16px auto; max-width: 1000px;
+      margin: 0 auto; max-width: 1000px;
       display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
     }
     .controls select, .controls input {
@@ -32,7 +62,7 @@
     .controls button:hover { background: #219150; }
     #compare-bar {
       display: none; background: #fff3cd; border-radius: 12px;
-      padding: 14px 20px; margin: 0 auto 12px; max-width: 1000px; text-align: center;
+      padding: 14px 20px; margin: 12px auto; max-width: 1000px; text-align: center;
     }
     #compare-bar button {
       margin: 4px 8px; padding: 8px 18px; border: none;
@@ -42,7 +72,7 @@
     #btn-clear   { background: #aaa; color: white; }
     #product-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px; max-width: 1000px; margin: 0 auto;
+      gap: 16px; max-width: 1000px; margin: 16px auto 0;
     }
     .card {
       background: white; border-radius: 12px; padding: 16px;
@@ -58,12 +88,13 @@
       display: flex; align-items: center; justify-content: center;
       color: #aaa; font-size: 2em;
     }
-    .card h3 { font-size: 1em; font-weight: bold; color: #2c3e50; }
+    .card h3 { font-size: 1em; font-weight: bold; color: #2c3e50; line-height: 1.3; }
+    .card h3 .en { display: block; font-size: 0.85em; color: #666; font-weight: 500; margin-top: 2px; }
     .card .model { font-size: 0.8em; color: #888; }
     .card .price { font-size: 1.2em; color: #e74c3c; font-weight: bold; }
     .card .source { font-size: 0.8em; color: #27ae60; }
     .card .updated { font-size: 0.75em; color: #aaa; }
-    .card .specs { font-size: 0.8em; color: #555; }
+    .card .specs { font-size: 0.8em; color: #555; line-height: 1.5; }
     .card label { display: flex; align-items: center; gap: 6px; font-size: 0.85em; cursor: pointer; }
     .card .actions {
       display: flex; gap: 8px; margin-top: 4px;
@@ -75,12 +106,8 @@
       transition: opacity 0.2s;
     }
     .card .actions a:active { opacity: 0.7; }
-    .card .actions .btn-call {
-      background: #27ae60; color: white;
-    }
-    .card .actions .btn-web {
-      background: #3498db; color: white;
-    }
+    .card .actions .btn-call { background: #27ae60; color: white; }
+    .card .actions .btn-web  { background: #3498db; color: white; }
     #compare-modal {
       display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.5); z-index: 999; overflow-y: auto; padding: 20px;
@@ -99,47 +126,71 @@
       color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1em;
     }
     #status { text-align: center; color: white; padding: 40px; font-size: 1.1em; }
+
+    @media (max-width: 600px) {
+      .settings-bar { flex-direction: column; align-items: stretch; }
+      .settings-group { justify-content: center; }
+    }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>仁濟醫院職業治療部</h1>
-  <h2>輔助工具</h2>
-  <p>價格只作參考，詳情請查詢相關的復康公司</p>
+  <h1 data-i18n="title_dept">仁濟醫院職業治療部</h1>
+  <h2 data-i18n="title_app">輔助工具</h2>
+  <p data-i18n="title_subtitle">價格只作參考，詳情請查詢相關的復康公司</p>
+</div>
+
+<!-- Settings: language + font size -->
+<div class="settings-bar">
+  <div class="settings-group">
+    <span class="label" data-i18n="settings_lang">🌐 語言 Language:</span>
+    <button class="seg-btn" data-lang="zh">中文</button>
+    <button class="seg-btn" data-lang="en">English</button>
+    <button class="seg-btn active" data-lang="both">中英 / EN</button>
+  </div>
+  <div class="settings-group">
+    <span class="label" data-i18n="settings_size">🔍 字體 Size:</span>
+    <button class="seg-btn" data-size="0.9">A−</button>
+    <button class="seg-btn active" data-size="1">A</button>
+    <button class="seg-btn" data-size="1.25">A+</button>
+    <button class="seg-btn" data-size="1.5">A++</button>
+  </div>
 </div>
 
 <div class="controls">
   <select id="filter-category">
-    <option value="">所有類別</option>
-    <option value="wheelchair">輪椅</option>
-    <option value="shower">沐浴椅</option>
-    <option value="toilet">便椅 / 廁所加高</option>
-    <option value="handrail">扶手</option>
-    <option value="bedrail">床邊扶手</option>
-    <option value="ramp">斜台板</option>
-    <option value="bathboard">沐浴板</option>
-    <option value="mattress">氣墊床褥</option>
-    <option value="walker">助行架</option>
+    <option value="" data-i18n="cat_all">所有類別 / All categories</option>
+    <option value="wheelchair" data-i18n="cat_wheelchair">輪椅 / Wheelchair</option>
+    <option value="shower" data-i18n="cat_shower">沐浴椅 / Shower chair</option>
+    <option value="toilet" data-i18n="cat_toilet">便椅 / 廁所加高 / Commode</option>
+    <option value="handrail" data-i18n="cat_handrail">扶手 / Handrail</option>
+    <option value="bedrail" data-i18n="cat_bedrail">床邊扶手 / Bed rail</option>
+    <option value="ramp" data-i18n="cat_ramp">斜台板 / Ramp</option>
+    <option value="bathboard" data-i18n="cat_bathboard">沐浴板 / Bath board</option>
+    <option value="mattress" data-i18n="cat_mattress">氣墊床褥 / Mattress</option>
+    <option value="walker" data-i18n="cat_walker">助行架 / Walker</option>
   </select>
-  <select id="filter-source"><option value="">所有供應商</option></select>
-  <input id="search-input" type="text" placeholder="搜尋產品名稱..." />
-  <button onclick="applyFilters()">搜尋</button>
+  <select id="filter-source"><option value="" data-i18n="src_all">所有供應商 / All suppliers</option></select>
+  <input id="search-input" type="text" data-i18n-attr="placeholder" data-i18n="search_placeholder" placeholder="搜尋產品名稱 / Search products..." />
+  <button onclick="applyFilters()" data-i18n="btn_search">🔎 搜尋 / Search</button>
 </div>
 
 <div id="compare-bar">
-  已選 <span id="compare-count">0</span> 件產品（最多4件）
-  <button id="btn-compare" onclick="showCompare()">比較</button>
-  <button id="btn-clear" onclick="clearCompare()">清除</button>
+  <span data-i18n="cmp_selected">已選 / Selected</span>
+  <span id="compare-count">0</span>
+  <span data-i18n="cmp_max">件產品（最多4件） / items (max 4)</span>
+  <button id="btn-compare" onclick="showCompare()" data-i18n="btn_compare">比較 Compare</button>
+  <button id="btn-clear"   onclick="clearCompare()" data-i18n="btn_clear">清除 Clear</button>
 </div>
 
-<div id="product-grid"><div id="status">正在載入產品資料...</div></div>
+<div id="product-grid"><div id="status" data-i18n="loading">正在載入產品資料... / Loading products...</div></div>
 
 <div id="compare-modal">
   <div class="modal-inner">
-    <h2>產品比較</h2>
+    <h2 data-i18n="cmp_title">產品比較 / Product Comparison</h2>
     <div style="overflow-x:auto"><table id="compare-table"></table></div>
-    <button id="btn-close-modal" onclick="closeCompare()">關閉</button>
+    <button id="btn-close-modal" onclick="closeCompare()" data-i18n="btn_close">關閉 Close</button>
   </div>
 </div>
 
@@ -149,24 +200,199 @@ let allProducts = [];
 let compareList = [];
 window._compareData = {};
 
-const CATEGORY_LABELS = {
-  wheelchair:'輪椅', shower:'沐浴椅', toilet:'便椅/廁所加高',
-  handrail:'扶手', bedrail:'床邊扶手', ramp:'斜台板',
-  bathboard:'沐浴板', mattress:'氣墊床褥', walker:'助行架'
+/* ===== Translations ===== */
+const I18N = {
+  zh: {
+    title_dept: '仁濟醫院職業治療部',
+    title_app: '輔助工具',
+    title_subtitle: '價格只作參考，詳情請查詢相關的復康公司',
+    settings_lang: '🌐 語言：',
+    settings_size: '🔍 字體大小：',
+    cat_all: '所有類別', cat_wheelchair: '輪椅', cat_shower: '沐浴椅',
+    cat_toilet: '便椅 / 廁所加高', cat_handrail: '扶手', cat_bedrail: '床邊扶手',
+    cat_ramp: '斜台板', cat_bathboard: '沐浴板', cat_mattress: '氣墊床褥', cat_walker: '助行架',
+    src_all: '所有供應商', search_placeholder: '搜尋產品名稱...',
+    btn_search: '🔎 搜尋',
+    cmp_selected: '已選', cmp_max: '件產品（最多4件）',
+    btn_compare: '比較', btn_clear: '清除',
+    loading: '正在載入產品資料...', no_match: '找不到符合條件的產品',
+    load_fail: '載入失敗：', no_data: '資料庫暫時沒有產品',
+    cmp_title: '產品比較', btn_close: '關閉',
+    no_product: '未知產品',
+    label_product: '產品名稱', label_model: '型號', label_price: '價格',
+    label_supplier: '供應商', label_category: '類別', label_specs: '規格',
+    label_phone: '電話', label_web: '網頁', label_updated: '更新日期', label_item: '項目',
+    updated: '更新：',
+    btn_call_text: '一按即打', btn_web_text: '產品網頁',
+    alert_max: '最多選4件產品', alert_min: '請選至少2件產品',
+  },
+  en: {
+    title_dept: 'Yan Chai Hospital — Occupational Therapy Dept.',
+    title_app: 'Assistive Devices',
+    title_subtitle: 'Prices for reference only. Please contact the supplier for details.',
+    settings_lang: '🌐 Language:',
+    settings_size: '🔍 Font Size:',
+    cat_all: 'All categories', cat_wheelchair: 'Wheelchair', cat_shower: 'Shower chair',
+    cat_toilet: 'Commode / Raised toilet', cat_handrail: 'Handrail', cat_bedrail: 'Bed rail',
+    cat_ramp: 'Ramp', cat_bathboard: 'Bath board', cat_mattress: 'Pressure-relief mattress', cat_walker: 'Walker',
+    src_all: 'All suppliers', search_placeholder: 'Search product name...',
+    btn_search: '🔎 Search',
+    cmp_selected: 'Selected', cmp_max: 'items (max 4)',
+    btn_compare: 'Compare', btn_clear: 'Clear',
+    loading: 'Loading products...', no_match: 'No matching products found',
+    load_fail: 'Failed to load: ', no_data: 'No products in database yet',
+    cmp_title: 'Product Comparison', btn_close: 'Close',
+    no_product: 'Unknown product',
+    label_product: 'Product', label_model: 'Model', label_price: 'Price',
+    label_supplier: 'Supplier', label_category: 'Category', label_specs: 'Specs',
+    label_phone: 'Phone', label_web: 'Website', label_updated: 'Updated', label_item: 'Item',
+    updated: 'Updated: ',
+    btn_call_text: 'Call', btn_web_text: 'Product page',
+    alert_max: 'Maximum 4 products', alert_min: 'Please select at least 2 products',
+  },
+  both: {
+    title_dept: '仁濟醫院職業治療部 / Yan Chai Hospital — OT Dept.',
+    title_app: '輔助工具 / Assistive Devices',
+    title_subtitle: '價格只作參考，詳情請查詢相關的復康公司 / Prices for reference only — please contact the supplier.',
+    settings_lang: '🌐 語言 Language:',
+    settings_size: '🔍 字體 Size:',
+    cat_all: '所有類別 / All', cat_wheelchair: '輪椅 / Wheelchair', cat_shower: '沐浴椅 / Shower',
+    cat_toilet: '便椅 / Commode', cat_handrail: '扶手 / Handrail', cat_bedrail: '床邊扶手 / Bed rail',
+    cat_ramp: '斜台板 / Ramp', cat_bathboard: '沐浴板 / Bath board', cat_mattress: '氣墊床褥 / Mattress', cat_walker: '助行架 / Walker',
+    src_all: '所有供應商 / All suppliers', search_placeholder: '搜尋產品 / Search...',
+    btn_search: '🔎 搜尋 / Search',
+    cmp_selected: '已選 / Selected', cmp_max: '件 (最多4件 / max 4)',
+    btn_compare: '比較 / Compare', btn_clear: '清除 / Clear',
+    loading: '正在載入 / Loading...', no_match: '找不到符合產品 / No match',
+    load_fail: '載入失敗 / Failed: ', no_data: '暫時沒有產品 / No products',
+    cmp_title: '產品比較 / Product Comparison', btn_close: '關閉 / Close',
+    no_product: '未知產品 / Unknown',
+    label_product: '產品名稱 / Product', label_model: '型號 / Model', label_price: '價格 / Price',
+    label_supplier: '供應商 / Supplier', label_category: '類別 / Category', label_specs: '規格 / Specs',
+    label_phone: '電話 / Phone', label_web: '網頁 / Website', label_updated: '更新日期 / Updated', label_item: '項目 / Item',
+    updated: '更新 / Updated: ',
+    btn_call_text: '一按即打 / Call', btn_web_text: '產品網頁 / Page',
+    alert_max: '最多選4件產品 / Max 4 products', alert_min: '請選至少2件 / Pick at least 2',
+  }
 };
 
+const CATEGORY_LABELS = {
+  zh: { wheelchair:'輪椅', shower:'沐浴椅', toilet:'便椅/廁所加高', handrail:'扶手',
+        bedrail:'床邊扶手', ramp:'斜台板', bathboard:'沐浴板', mattress:'氣墊床褥', walker:'助行架' },
+  en: { wheelchair:'Wheelchair', shower:'Shower chair', toilet:'Commode', handrail:'Handrail',
+        bedrail:'Bed rail', ramp:'Ramp', bathboard:'Bath board', mattress:'Mattress', walker:'Walker' },
+  both: { wheelchair:'輪椅 / Wheelchair', shower:'沐浴椅 / Shower', toilet:'便椅 / Commode',
+          handrail:'扶手 / Handrail', bedrail:'床邊扶手 / Bed rail', ramp:'斜台板 / Ramp',
+          bathboard:'沐浴板 / Bath board', mattress:'氣墊床褥 / Mattress', walker:'助行架 / Walker' }
+};
+
+// English product-name translations (lookup by model). Add more as you go.
+const PRODUCT_EN = {
+  'AD-0171': 'Advanced 7510 Multi-functional Lightweight Wheelchair',
+  'ALP-DS1807PF-T05': 'Alpha® T05 Self-propelled Wheelchair (Large Wheel)',
+  'GHM-WC-EX2': 'Invacare Tracer EX2 Multi-functional Wheelchair',
+  'H508': 'Folding-back Manual Wheelchair',
+  'FHW-13': 'Functional Aluminium Small-wheel Manual Wheelchair',
+  'TTST-0004 / RE30': 'Advanced RE30 High-back Reclining Wheelchair (172°)',
+  'ALP-RW1611P-F-V1': 'Alpha® High-back Reclining Wheelchair (180°)',
+  'GHM-WC-RC': 'Reclining High-back Wheelchair (Elevating Leg Rest)',
+  'VA3000': 'Japanese-style Aluminium Wheelchair',
+  'ECM00407': 'Fixed Commode Chair',
+  'CA1360': 'Folding Shower & Commode Chair',
+  'H-61-G-5-PW3': 'Stainless Steel Shower/Commode Chair (Drop-down arms + Tilt-bar)',
+  'CS880A': '4-wheel Shower/Commode Chair (Flip-up arms) V-Chair',
+  'GHM-SC-CM01': 'Aluminium Shower/Commode Chair',
+  'ECM30442 / ECM30444S': '304 Stainless Steel Shower/Commode Chair (Optional Tilt-bar)',
+  'FS-798L': 'High-back Shower Chair',
+  'ST-D1004': 'Japanese-style Swivel Shower Chair',
+  'NOT-P42434': 'No-install Extendable Bed Rail',
+  'WOH-TRRUB-RUB-1525-2': 'WONSH® Rubber Ramp',
+  'RX-AM40A': 'ROSSMAX Strip Air Mattress',
+  'WA200': 'Folding Wheelchair Ramp',
+};
+
+// English supplier-name translations
+const SUPPLIER_EN = {
+  '盈康 Healthy Living': 'Healthy Living',
+  '真善美醫護': 'Just Med',
+  '家得康醫療用品': 'Get Health Medical',
+  '信義醫療': 'Justice Medical',
+  '唯健康 Health Top': 'Health Top',
+  '康健醫療用品': 'Medicare HK',
+  '卓越醫療器材': 'Supreme Medical',
+  '復康速遞': 'Rehab Express',
+  'Easy66': 'Easy66',
+};
+
+let currentLang = localStorage.getItem('lang') || 'both';
+let currentSize = parseFloat(localStorage.getItem('size') || '1');
+
+function t(key) { return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || key; }
+
+function applyI18N() {
+  document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-HK';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const attr = el.dataset.i18nAttr;
+    if (attr) el.setAttribute(attr, t(key));
+    else el.textContent = t(key);
+  });
+  // Update lang button states
+  document.querySelectorAll('.seg-btn[data-lang]').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === currentLang);
+  });
+}
+
+function applyFontSize() {
+  document.documentElement.style.setProperty('--font-scale', currentSize);
+  document.querySelectorAll('.seg-btn[data-size]').forEach(b => {
+    b.classList.toggle('active', parseFloat(b.dataset.size) === currentSize);
+  });
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  applyI18N();
+  renderCards(window._lastFiltered || allProducts);
+}
+
+function setFontSize(size) {
+  currentSize = size;
+  localStorage.setItem('size', String(size));
+  applyFontSize();
+}
+
+/* ===== Helpers to bilingual-format text ===== */
+function nameWithEn(p) {
+  const zh = p.product_name || t('no_product');
+  const en = PRODUCT_EN[p.model] || PRODUCT_EN[(p.model||'').split(' / ')[0]] || '';
+  if (currentLang === 'en' && en) return en;
+  if (currentLang === 'both' && en) return `${zh}<span class="en">${en}</span>`;
+  return zh;
+}
+
+function supplierName(p) {
+  const zh = p.source_name || p.source || '';
+  const en = SUPPLIER_EN[zh] || '';
+  if (currentLang === 'en' && en) return en;
+  if (currentLang === 'both' && en && en !== zh) return `${zh} / ${en}`;
+  return zh;
+}
+
+/* ===== Data loading & rendering ===== */
 async function loadProducts() {
   try {
     const res = await fetch(JSON_URL);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     allProducts = Array.isArray(data) ? data : (data.products || []);
-    if (allProducts.length === 0) throw new Error('資料庫暫時沒有產品');
+    if (allProducts.length === 0) throw new Error(t('no_data'));
     populateSourceFilter();
     renderCards(allProducts);
   } catch (e) {
     document.getElementById('product-grid').innerHTML =
-      '<div id="status">載入失敗：' + e.message + '</div>';
+      '<div id="status">' + t('load_fail') + e.message + '</div>';
   }
 }
 
@@ -175,14 +401,20 @@ function populateSourceFilter() {
   const sel = document.getElementById('filter-source');
   sources.forEach(s => {
     const opt = document.createElement('option');
-    opt.value = s; opt.textContent = s; sel.appendChild(opt);
+    opt.value = s;
+    const en = SUPPLIER_EN[s];
+    opt.textContent = (currentLang === 'en' && en) ? en
+                    : (currentLang === 'both' && en && en !== s) ? `${s} / ${en}` : s;
+    sel.appendChild(opt);
   });
 }
 
 function renderCards(products) {
+  window._lastFiltered = products;
   const grid = document.getElementById('product-grid');
   if (products.length === 0) {
-    grid.innerHTML = '<div id="status">找不到符合條件的產品</div>'; return;
+    grid.innerHTML = `<div id="status">${t('no_match')}</div>`;
+    return;
   }
   grid.innerHTML = '';
   products.forEach((p, i) => {
@@ -201,21 +433,21 @@ function renderCards(products) {
       ? `<a class="btn-call" href="tel:${phoneClean}">📞 ${p.phone}</a>`
       : '';
     const webBtn = p.product_url
-      ? `<a class="btn-web" href="${p.product_url}" target="_blank" rel="noopener">🌐 產品網頁</a>`
+      ? `<a class="btn-web" href="${p.product_url}" target="_blank" rel="noopener">🌐 ${t('btn_web_text')}</a>`
       : '';
     const actionsHTML = (callBtn || webBtn)
       ? `<div class="actions">${callBtn}${webBtn}</div>`
       : '';
     card.innerHTML = `
       ${imgHTML}
-      <h3>${p.product_name || '未知產品'}</h3>
+      <h3>${nameWithEn(p)}</h3>
       <div class="model">${p.model || ''}</div>
       <div class="price">${p.price_display || 'HK$ N/A'}</div>
-      <div class="source">📦 ${p.source_name || p.source || ''}</div>
+      <div class="source">📦 ${supplierName(p)}</div>
       ${specsHTML}
       ${actionsHTML}
-      <div class="updated">更新：${p.updated_date || p.last_checked || 'N/A'}</div>
-      <label><input type="checkbox" ${checked} data-id="${id}" data-product="${pData}" onchange="toggleCompare(this)"> 加入比較</label>
+      <div class="updated">${t('updated')}${p.updated_date || p.last_checked || 'N/A'}</div>
+      <label><input type="checkbox" ${checked} data-id="${id}" data-product="${pData}" onchange="toggleCompare(this)"> ${t('btn_compare')}</label>
     `;
     grid.appendChild(card);
   });
@@ -243,7 +475,7 @@ document.getElementById('search-input').addEventListener('keydown', e => { if (e
 function toggleCompare(checkbox) {
   const id = String(checkbox.dataset.id);
   if (checkbox.checked) {
-    if (compareList.length >= 4) { alert('最多選4件產品'); checkbox.checked = false; return; }
+    if (compareList.length >= 4) { alert(t('alert_max')); checkbox.checked = false; return; }
     compareList.push(id);
     const raw = checkbox.dataset.product.replace(/&quot;/g,'"');
     try { window._compareData[id] = JSON.parse(raw); } catch(e) {}
@@ -266,25 +498,26 @@ function clearCompare() {
 
 function showCompare() {
   const items = compareList.map(id => window._compareData[id]).filter(Boolean);
-  if (items.length < 2) { alert('請選至少2件產品'); return; }
+  if (items.length < 2) { alert(t('alert_min')); return; }
+  const catMap = CATEGORY_LABELS[currentLang] || CATEGORY_LABELS.zh;
   const rows = [
-    ['產品名稱', p => p.product_name||'-'],
-    ['型號',     p => p.model||'-'],
-    ['價格',     p => p.price_display||'-'],
-    ['供應商',   p => p.source_name||p.source||'-'],
-    ['類別',     p => CATEGORY_LABELS[p.category]||p.category||'-'],
-    ['規格',     p => parseJSON(p.specs).join('<br>')||'-'],
-    ['電話',     p => {
+    [t('label_product'), p => nameWithEn(p) || '-'],
+    [t('label_model'),     p => p.model||'-'],
+    [t('label_price'),     p => p.price_display||'-'],
+    [t('label_supplier'),  p => supplierName(p)||'-'],
+    [t('label_category'),  p => catMap[p.category]||p.category||'-'],
+    [t('label_specs'),     p => parseJSON(p.specs).join('<br>')||'-'],
+    [t('label_phone'),     p => {
       if (!p.phone) return '-';
       const clean = p.phone.replace(/\s+/g, '');
       return `<a href="tel:${clean}" style="color:#27ae60;font-weight:600;text-decoration:none">📞 ${p.phone}</a>`;
     }],
-    ['網頁',     p => p.product_url
-      ? `<a href="${p.product_url}" target="_blank" rel="noopener" style="color:#3498db;text-decoration:none">🌐 產品網頁</a>`
+    [t('label_web'),     p => p.product_url
+      ? `<a href="${p.product_url}" target="_blank" rel="noopener" style="color:#3498db;text-decoration:none">🌐 ${t('btn_web_text')}</a>`
       : '-'],
-    ['更新日期', p => p.updated_date||'-'],
+    [t('label_updated'), p => p.updated_date||'-'],
   ];
-  let html = '<tr><th>項目</th>' + items.map(p=>`<th>${p.product_name||'-'}</th>`).join('') + '</tr>';
+  let html = `<tr><th>${t('label_item')}</th>` + items.map(p=>`<th>${nameWithEn(p)||'-'}</th>`).join('') + '</tr>';
   rows.forEach(([label, fn]) => {
     html += `<tr><td><strong>${label}</strong></td>` + items.map(p=>`<td>${fn(p)}</td>`).join('') + '</tr>';
   });
@@ -294,6 +527,17 @@ function showCompare() {
 
 function closeCompare() { document.getElementById('compare-modal').style.display = 'none'; }
 
+/* ===== Wire up settings buttons ===== */
+document.querySelectorAll('.seg-btn[data-lang]').forEach(b => {
+  b.addEventListener('click', () => setLang(b.dataset.lang));
+});
+document.querySelectorAll('.seg-btn[data-size]').forEach(b => {
+  b.addEventListener('click', () => setFontSize(parseFloat(b.dataset.size)));
+});
+
+/* ===== Init ===== */
+applyI18N();
+applyFontSize();
 loadProducts();
 </script>
 </body>
