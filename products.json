@@ -647,28 +647,6 @@
     "note_en": "Specs available online; price not listed — please call. Suitable for medium-to-high pressure ulcer risk"
   },
   {
-    "id": "w4",
-    "source": "easy66",
-    "source_name": "Easy66",
-    "category": "wheelchair",
-    "product_name": "日式鋁合金輪椅",
-    "model": "VA3000",
-    "price_min": 0,
-    "price_max": 0,
-    "price_display": "請查詢",
-    "image_url": "",
-    "product_url": "",
-    "updated_date": "2026-06-10",
-    "last_checked": "2026-06-10",
-    "phone": "2102 7180",
-    "product_name_en": "Multi-functional Wheelchair (TBD)",
-    "specs_en": [
-      "Please contact supplier for details"
-    ],
-    "price_display_en": "Please call to enquire",
-    "note_en": "Placeholder — product details pending"
-  },
-  {
     "id": "r3",
     "source": "supreme",
     "source_name": "卓越 Supreme",

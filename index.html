@@ -38,7 +38,7 @@
     .header .logo-zh { display: block; }
     .header .logo-zh img {
       display: block;
-      max-height: 120px;
+      max-height: 85px;
       max-width: 100%;
       height: auto; width: auto;
     }
@@ -49,12 +49,12 @@
     }
     .header .logo-en img {
       display: block;
-      height: 110px; width: auto;
+      height: 80px; width: auto;
       flex-shrink: 0;
     }
     .header .logo-en .dept-text {
       color: #1a1a1a; font-weight: 800;
-      font-size: 1.3em; line-height: 1.25;
+      font-size: 1.15em; line-height: 1.25;
       text-align: left;
       letter-spacing: 0.01em;
     }
@@ -312,10 +312,10 @@
     @media (max-width: 600px) {
       .settings-bar { flex-direction: column; align-items: stretch; }
       .settings-group { justify-content: center; }
-      .header .logo-wrap { padding: 10px 14px; gap: 12px; }
-      .header .logo-zh img { max-height: 80px; }
-      .header .logo-en img { height: 70px; }
-      .header .logo-en .dept-text { font-size: 0.95em; }
+      .header .logo-wrap { padding: 8px 12px; gap: 10px; }
+      .header .logo-zh img { max-height: 60px; }
+      .header .logo-en img { height: 55px; }
+      .header .logo-en .dept-text { font-size: 0.85em; }
     }
 
     /* ===== Footer (contact + disclaimer) ===== */
@@ -546,7 +546,7 @@ const I18N = {
     footer_phone_ip_med: '住院內科',
     footer_notes_title: '注意事項',
     footer_note1_label: '編製資訊：',
-    footer_note1_body: '本頁資料由仁濟醫院駐院職業治療師鄧姑娘於 2026 年 6 月製作。',
+    footer_note1_body: '本頁資料由仁濟醫院駐院職業治療師鄧姑娘於 2026 年 6 月整理及更新，內容參考前人資料並加以修訂，網頁由 AI 協助製作。',
     footer_note2_label: '參考性質：',
     footer_note2_body: '本網頁僅列出部分輔助工具型號作為參考，市面上各品牌均有類似款式。',
     footer_note3_label: '免責聲明：',
@@ -612,7 +612,7 @@ const I18N = {
     footer_phone_ip_med: 'Inpatient Medical',
     footer_notes_title: 'Important Notes',
     footer_note1_label: 'Compiled by: ',
-    footer_note1_body: 'This page was compiled by Ms. Tang, resident occupational therapist at Yan Chai Hospital, in June 2026.',
+    footer_note1_body: 'Compiled and updated in June 2026 by Ms. Tang, resident occupational therapist at Yan Chai Hospital. Content was adapted and revised from earlier reference materials, and this website was built with AI assistance.',
     footer_note2_label: 'For reference only: ',
     footer_note2_body: 'This website lists selected assistive device models for reference only. Similar products are available from many brands on the market.',
     footer_note3_label: 'Disclaimer: ',
@@ -903,7 +903,10 @@ function clearCompare() {
 }
 
 function showCompare() {
-  const items = compareList.map(id => window._compareData[id]).filter(Boolean);
+  // Look up products fresh from allProducts each time — survives re-renders.
+  const items = compareList
+    .map(id => allProducts.find(p => String(p.id) === String(id)) || window._compareData[id])
+    .filter(Boolean);
   if (items.length < 2) { alert(t('alert_min')); return; }
   const catMap = CATEGORY_LABELS[currentLang] || CATEGORY_LABELS.zh;
   const rows = [
