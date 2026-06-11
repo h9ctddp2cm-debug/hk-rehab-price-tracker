@@ -149,9 +149,9 @@
     "category": "wheelchair",
     "product_name": "功能型鋁合金小輪手動輪椅",
     "model": "FHW-13",
-    "price_min": 1980.0,
-    "price_max": 1980.0,
-    "price_display": "HK$1,980.00 (參考價, 健康網購: $2,500)",
+    "price_min": 2500,
+    "price_max": 2500,
+    "price_display": "HK$2,500 (HealthTop 唯健康)",
     "specs": [
       "座高: 19\"",
       "座闊: 16\"/18\"",
@@ -175,7 +175,7 @@
       "Aluminium alloy, lightweight",
       "Foldable"
     ],
-    "price_display_en": "HK$1,580.00 (reference)"
+    "price_display_en": "HK$2,500 (HealthTop)"
   },
   {
     "id": "w7",
