@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>仁濟醫院職業治療部 - 輔助工具價格比較</title>
+  <title>仁濟醫院職業治療部：常用輔助工具參考 (2026年6月更新)</title>
   <style>
     :root {
       --font-scale: 1;
@@ -379,7 +379,7 @@
       <div class="dept-text">Yan Chai Hospital<br/>Occupational Therapy Department</div>
     </div>
   </div>
-  <h2 data-i18n="title_app">輔助工具</h2>
+  <h2 data-i18n="title_app">常用輔助工具參考 (2026年6月更新)</h2>
   <p data-i18n="title_subtitle">以下資料只作參考，詳情請查詢相關的復康公司</p>
 </div>
 
@@ -505,8 +505,9 @@ window._compareData = {};
 /* ===== Translations ===== */
 const I18N = {
   zh: {
-    title_app: '輔助工具',
+    title_app: '常用輔助工具參考 (2026年6月更新)',
     title_subtitle: '以下資料只作參考，詳情請查詢相關的復康公司',
+    page_title: '仁濟醫院職業治療部：常用輔助工具參考 (2026年6月更新)',
     settings_lang: '🌐 語言：',
     settings_size: '🔍 字體大小：',
     cat_all: '所有類別', cat_wheelchair: '輪椅', cat_shower: '沐浴椅',
@@ -571,8 +572,9 @@ const I18N = {
     notice_commode_3: '如進出浴室需踏級，則請額外通知職業治療師',
   },
   en: {
-    title_app: 'Assistive Devices',
+    title_app: 'Common Assistive Devices Reference (Updated June 2026)',
     title_subtitle: 'The following information is for reference only. Please contact the supplier for details.',
+    page_title: 'Yan Chai Hospital OT Department: Common Assistive Devices Reference (Updated June 2026)',
     settings_lang: '🌐 Language:',
     settings_size: '🔍 Font Size:',
     cat_all: 'All categories', cat_wheelchair: 'Wheelchair', cat_shower: 'Shower chair',
@@ -697,6 +699,7 @@ function t(key) { return (I18N[currentLang] && I18N[currentLang][key]) || I18N.z
 
 function applyI18N() {
   document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-HK';
+  document.title = t('page_title');
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
     const attr = el.dataset.i18nAttr;
